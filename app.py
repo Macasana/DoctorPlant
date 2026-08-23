@@ -9,12 +9,22 @@ import streamlit as st
 import tensorflow as tf
 from PIL import Image
 
-# Import class names from class_names.py
-try:
-    from class_names import CLASS_NAMES
-except ImportError:
-    st.error("❌ class_names.py not found!")
-    st.stop()
+# ============================================================
+# LOAD CLASS NAMES FROM TEXT FILE
+# ============================================================
+
+def load_class_names():
+    """Load class names from text file"""
+    try:
+        with open('class_names (1).txt', 'r', encoding='utf-8') as file:
+            class_names = [line.strip() for line in file if line.strip()]
+            return class_names
+    except FileNotFoundError:
+        st.error("❌ class_names (1).txt not found!")
+        st.info("Make sure the file is in the same folder as app.py")
+        st.stop()
+
+CLASS_NAMES = load_class_names()
 
 
 # ============================================================
@@ -123,7 +133,7 @@ def predict(model, image_array):
     # Get confidence
     confidence = float(prediction[class_id])
 
-    # Get class name from imported CLASS_NAMES
+    # Get class name from loaded CLASS_NAMES
     if class_id < len(CLASS_NAMES):
         class_name = CLASS_NAMES[class_id]
     else:
@@ -197,7 +207,7 @@ def main():
         st.info("""
             Make sure these files are in the same folder as `app.py`:
             • plant_disease_recog_model_pwp.keras
-            • class_names.py
+            • class_names (1).txt
         """)
         return
 
@@ -217,9 +227,7 @@ def main():
     # Tabs
     tab1, tab2, tab3 = st.tabs(["📸 Camera", "📁 Upload Image", "ℹ️ About"])
 
-    # ========================================================
-    # CAMERA
-    # ========================================================
+    # Camera tab
     with tab1:
         st.subheader("📸 Take a Photo")
         st.write("Take a clear picture of the plant leaf.")
@@ -232,9 +240,7 @@ def main():
             st.image(image, caption="Captured Leaf", use_container_width=True)
             display_prediction(model, image)
 
-    # ========================================================
-    # UPLOAD IMAGE
-    # ========================================================
+    # Upload tab
     with tab2:
         st.subheader("📁 Upload an Image")
         st.write("Upload a JPG, JPEG or PNG image of a plant leaf.")
@@ -251,9 +257,7 @@ def main():
             st.image(image, caption="Uploaded Leaf", use_container_width=True)
             display_prediction(model, image)
 
-    # ========================================================
-    # ABOUT
-    # ========================================================
+    # About tab
     with tab3:
         st.subheader("ℹ️ About PlantDoctor")
 
@@ -267,7 +271,7 @@ def main():
             ### 🤖 Model Information
             - Architecture: **EfficientNetB4**
             - Input size: **160 × 160**
-            - Number of classes: **38**
+            - Number of classes: **39**
             - Framework: **TensorFlow / Keras**
             - Model format: **.keras**
             - Pre-trained weights: **ImageNet**
@@ -286,7 +290,7 @@ def main():
         st.divider()
         st.subheader("🌱 Supported Classes")
 
-        # Show classes from CLASS_NAMES
+        # Show classes from class_names (1).txt
         for number, class_name in enumerate(CLASS_NAMES, start=1):
             st.write(f"{number}. {class_name}")
 
