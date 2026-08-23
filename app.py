@@ -42,8 +42,8 @@ def predict(image):
     """Make prediction on uploaded image"""
     model = load_model()
     
-    # Preprocess image
-    img = image.resize((224, 224))
+    # Preprocess image - resize to 160x160 (model expects this size!)
+    img = image.resize((160, 160))
     img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
     
@@ -63,19 +63,23 @@ uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+    st.image(image, caption="Uploaded Image", width=300)
     
     if st.button("🔬 Diagnose", type="primary"):
         with st.spinner("Analyzing..."):
-            label, confidence = predict(image)
-            st.success(f"**Prediction:** {label}")
-            st.info(f"**Confidence:** {confidence:.2%}")
-            
-            if "healthy" in label.lower():
-                st.balloons()
-                st.success("✅ This plant appears **HEALTHY**!")
-            else:
-                st.warning("⚠️ This plant may have a disease.")
+            try:
+                label, confidence = predict(image)
+                st.success(f"**Prediction:** {label}")
+                st.info(f"**Confidence:** {confidence:.2%}")
+                
+                if "healthy" in label.lower():
+                    st.balloons()
+                    st.success("✅ This plant appears **HEALTHY**!")
+                else:
+                    st.warning("⚠️ This plant may have a disease. Consider consulting an expert.")
+            except Exception as e:
+                st.error(f"❌ Prediction error: {str(e)}")
+                st.info("Check the logs for more details.")
 
 st.markdown("---")
 st.caption("🌱 PlantDoctor - AI Powered Plant Disease Detection")
