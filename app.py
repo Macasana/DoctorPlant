@@ -16,7 +16,7 @@ from PIL import Image
 def load_class_names():
     """Load class names from text file"""
     try:
-        with open('class_names (1).txt', 'r', encoding='utf-8') as file:
+        with open('class_names.txt', 'r', encoding='utf-8') as file:
             class_names = [line.strip() for line in file if line.strip()]
             return class_names
     except FileNotFoundError:
